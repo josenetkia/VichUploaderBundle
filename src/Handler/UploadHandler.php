@@ -2,64 +2,64 @@
 
 namespace Vich\UploaderBundle\Handler;
 
+
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Vich\UploaderBundle\Mapping\PropertyMapping;
+use Vich\UploaderBundle\Traits\Encrypt;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Vich\UploaderBundle\Crypt\Encryption;
 use Vich\UploaderBundle\Event\Event;
 use Vich\UploaderBundle\Event\Events;
 use Vich\UploaderBundle\Injector\FileInjectorInterface;
-use Vich\UploaderBundle\Mapping\PropertyMapping;
 use Vich\UploaderBundle\Mapping\PropertyMappingFactory;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
-/**
- * Upload handler.
- *
- * @author Kévin Gomez <contact@kevingomez.fr>
- * @final
- */
 class UploadHandler extends AbstractHandler
 {
-    /**
-     * @var FileInjectorInterface
-     */
-    protected $injector;
+    use Encrypt;
 
     /**
-     * @var EventDispatcherInterface
+     * @var Encryption
      */
-    protected $dispatcher;
+    protected $encryption;
 
+    /**
+     * @param PropertyMappingFactory $factory
+     * @param StorageInterface $storage
+     * @param FileInjectorInterface $injector
+     * @param EventDispatcherInterface $dispatcher
+     * @param Encryption $encryption
+     */
     public function __construct(
         PropertyMappingFactory $factory,
         StorageInterface $storage,
         FileInjectorInterface $injector,
-        EventDispatcherInterface $dispatcher
+        EventDispatcherInterface $dispatcher,
+        Encryption $encryption
     ) {
         parent::__construct($factory, $storage);
 
         $this->injector = $injector;
         $this->dispatcher = $dispatcher;
+        $this->encryption = $encryption;
     }
 
     /**
-     * Checks for file to upload.
-     *
-     * @param object $obj       The object
-     * @param string $fieldName The name of the field containing the upload (has to be mapped)
-     *
-     * @throws \Vich\UploaderBundle\Exception\MappingNotFoundException
+     * {@inheritdoc}
      */
     public function upload($obj, string $fieldName): void
     {
         $mapping = $this->getMapping($obj, $fieldName);
 
-        // nothing to upload
         if (!$this->hasUploadedFile($obj, $mapping)) {
             return;
         }
 
         $this->dispatch(Events::PRE_UPLOAD, new Event($obj, $mapping));
-
+        if ($this->isEncryptFile($mapping)) {
+            $fileRealPath = $mapping->getFile($obj)->getRealPath();
+            file_put_contents($fileRealPath, $this->encryption->encrypt(file_get_contents($fileRealPath)));
+        }
         $this->storage->upload($obj, $mapping);
         $this->injector->injectFile($obj, $mapping);
 

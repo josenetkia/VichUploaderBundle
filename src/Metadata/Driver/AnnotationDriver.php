@@ -69,6 +69,7 @@ class AnnotationDriver implements AdvancedDriverInterface
                 'mimeType' => $uploadableField->getMimeType(),
                 'originalName' => $uploadableField->getOriginalName(),
                 'dimensions' => $uploadableField->getDimensions(),
+                'encrypted' => $mappingData['encrypted'] ?? null,
             ];
 
             //TODO: store UploadableField object instead of array

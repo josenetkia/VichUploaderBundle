@@ -33,6 +33,7 @@ abstract class AbstractYamlDriver extends AbstractFileDriver
                 'mimeType' => $mappingData['mime_type'] ?? null,
                 'originalName' => $mappingData['original_name'] ?? null,
                 'dimensions' => $mappingData['dimensions'] ?? null,
+                'encrypted' => $mappingData['encrypted'] ?? null,
             ];
 
             $classMetadata->fields[$field] = $fieldMetadata;

@@ -13,6 +13,8 @@ use Vich\UploaderBundle\Naming\NamerInterface;
  *
  * @author Dustin Dobervich <ddobervich@gmail.com>
  * @final
+ *
+ * @internal
  */
 class PropertyMapping
 {
@@ -46,12 +48,18 @@ class PropertyMapping
         'mimeType' => null,
         'originalName' => null,
         'dimensions' => null,
+        'encrypted' => null
     ];
 
     /**
      * @var PropertyAccessor
      */
     protected $accessor;
+
+    /**
+     * @var bool
+     */
+    protected $encrypted;
 
     /**
      * @param string         $filePropertyPath     The path to the "file" property
@@ -374,5 +382,10 @@ class PropertyMapping
         }
 
         return $this->accessor = PropertyAccess::createPropertyAccessor();
+    }
+
+    protected function getEncrypted():bool
+    {
+        return $this->encrypted??false;
     }
 }

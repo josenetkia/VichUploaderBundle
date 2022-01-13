@@ -3,10 +3,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <service id="vich_uploader.encryption" class="Vich\UploaderBundle\Crypt\Encryption" public="true">
+            <argument type="service" id="parameter_bag" />
+        </service>
         <!-- download handler -->
         <service id="vich_uploader.download_handler" class="Vich\UploaderBundle\Handler\DownloadHandler" public="true">
             <argument type="service" id="vich_uploader.property_mapping_factory" />
             <argument type="service" id="vich_uploader.storage" />
+            <argument type="service" id="vich_uploader.encryption" />
         </service>
 
         <!-- global handler -->
@@ -15,6 +19,7 @@
             <argument type="service" id="vich_uploader.storage" />
             <argument type="service" id="vich_uploader.file_injector" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="vich_uploader.encryption" />
         </service>
 
         <service id="Vich\UploaderBundle\Handler\DownloadHandler" alias="vich_uploader.download_handler" public="false"/>
